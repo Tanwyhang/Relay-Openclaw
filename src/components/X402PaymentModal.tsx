@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Loader2, CheckCircle2, Box, FileText } from 'lucide-react';
+import { toast } from '@/components/ui/sonner';
 
 export interface X402PaymentDetails {
   amount: number;
@@ -31,6 +32,9 @@ export function X402PaymentModal({ details, onSuccess, onCancel }: X402PaymentMo
     // Simulate payment process
     setTimeout(() => {
       setStatus('success');
+      toast.success(`Payment confirmed`, { 
+        description: `$${details.amount.toFixed(2)} sent to ${details.recipient}` 
+      });
       
       // Auto-close and trigger success after short delay
       setTimeout(() => {

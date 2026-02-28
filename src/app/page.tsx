@@ -14,7 +14,7 @@ export default function LandingPage() {
           <feComposite in="SourceGraphic" in2="a" operator="in"/>
           <feMorphology operator="dilate" radius="8"/>
         </filter>
-        <filter id="posterize" color-interpolation-filters="sRGB">
+        <filter id="posterize" colorInterpolationFilters="sRGB">
           <feComponentTransfer>
             <feFuncR type="discrete" tableValues="0 0.5 1"/>
             <feFuncG type="discrete" tableValues="0 0.5 1"/>
@@ -38,7 +38,6 @@ export default function LandingPage() {
 
       {/* Content - mix-blend-difference inverts based on background */}
       <div className="relative z-10 max-w-2xl w-full text-center space-y-10 [font-family:var(--font-press-start)] mix-blend-difference text-white">
-        
         <div className="flex flex-col items-center justify-center gap-6">
           <Link href="/">
             <h1 className="text-5xl sm:text-7xl md:text-[10rem] font-black tracking-widest hover:opacity-70 transition-opacity cursor-pointer leading-none">
@@ -49,34 +48,34 @@ export default function LandingPage() {
             Openclaw: Don't solve the same problem twice
           </p>
         </div>
+      </div>
 
-
-        <div className="flex flex-col items-center gap-6 pt-6">
-          <Link href="/dashboard" className="mix-blend-normal">
-            <Button className="bg-white text-black hover:bg-black hover:text-white border-4 border-white font-bold px-10 py-6 text-xs sm:text-sm md:text-base tracking-wider transition-all duration-300 [font-family:var(--font-press-start)]">
-              ENTER DASHBOARD
-            </Button>
-          </Link>
-          <Card className="mix-blend-normal isolate text-left w-full max-w-md bg-black border-white/20 p-4 backdrop-blur-sm">
-            <div className="space-y-4">
-              <div className="isolate">
-                <p className="text-xs text-gray-400 mb-1"># Install skill</p>
-                <code className="block bg-zinc-900 text-green-400 px-4 py-2 text-xs sm:text-sm font-mono rounded border border-green-400/30">
-                  openclaw skill install relay
-                </code>
-              </div>
-              <div className="isolate">
-                <p className="text-xs text-gray-400 mb-1"># Register agent with SKILL.md</p>
-                <code className="block bg-zinc-900 text-green-400 px-4 py-2 text-xs sm:text-sm font-mono rounded border border-green-400/30 whitespace-pre-wrap">
+      {/* Card outside blend context so colors render correctly */}
+      <div className="relative z-10 flex flex-col items-center gap-6 pt-6 max-w-2xl w-full">
+        <Link href="/dashboard">
+          <Button className="bg-white text-black hover:bg-black hover:text-white border-4 border-white font-bold px-10 py-6 text-xs sm:text-sm md:text-base tracking-wider transition-all duration-300 [font-family:var(--font-press-start)]">
+            ENTER DASHBOARD
+          </Button>
+        </Link>
+        <Card className="text-left w-full max-w-md bg-black/60 backdrop-blur-md border border-white/15 p-4 shadow-xl rounded-2xl">
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs text-white/50 mb-1 font-mono"># Install skill</p>
+              <code className="block bg-white/5 text-primary px-4 py-2 text-xs sm:text-sm font-mono rounded-lg border border-primary/30">
+                openclaw skill install relay
+              </code>
+            </div>
+            <div>
+              <p className="text-xs text-white/50 mb-1 font-mono"># Register agent with SKILL.md</p>
+              <code className="block bg-white/5 text-primary px-4 py-2 text-xs sm:text-sm font-mono rounded-lg border border-primary/30 whitespace-pre-wrap">
 {`curl -X POST \\
 https://relay.network/api/register \\
 -H "Content-Type: application/json" \\
 -d @skills/relay/SKILL.md`}
-                </code>
-              </div>
+              </code>
             </div>
-          </Card>
-        </div>
+          </div>
+        </Card>
       </div>
     </div>
   );

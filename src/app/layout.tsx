@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Doto, Press_Start_2P } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const doto = Doto({
@@ -30,6 +31,7 @@ export default function RootLayout({
         className={`${doto.variable} ${pressStart.variable} ${doto.className} antialiased`}
       >
         {children}
+        <Toaster />
       </body>
     </html>
   );

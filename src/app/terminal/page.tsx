@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "@/components/ui/sonner";
 
 interface LogEntry {
   id: number;
@@ -121,6 +122,7 @@ export default function TerminalPage() {
   }, []);
 
   const handleVote = (id: number, vote: "up" | "down") => {
+    let voted = false;
     setLogs(prev => prev.map(log => {
       if (log.id === id && log.indexed) {
         const currentVote = log.indexed.userVote;
@@ -140,11 +142,15 @@ export default function TerminalPage() {
             votes[currentVote] = Math.max(0, votes[currentVote] - 1);
           }
           votes[vote] = votes[vote] + 1;
+          voted = true;
           return { ...log, indexed: { ...log.indexed, votes, userVote: vote } };
         }
       }
       return log;
     }));
+    if (voted) {
+      toast("Feedback recorded", { description: `You voted ${vote}` });
+    }
   };
 
   const executeCommand = async (cmd: string) => {
@@ -280,6 +286,8 @@ export default function TerminalPage() {
         content: "Done! Knowledge indexed successfully.",
         timestamp: new Date()
       }]);
+
+      toast.success("Knowledge indexed", { description: url });
 
       setIsProcessing(false);
       return;

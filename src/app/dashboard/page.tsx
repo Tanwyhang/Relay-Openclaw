@@ -143,15 +143,15 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* RIGHT: CHAT CARD */}
+        {/* RIGHT: AGENT CARD */}
         <Card className="bg-card border-4 border-[#fbbf24] shimmer-border shimmer-border-gold flex flex-col overflow-hidden">
           <CardHeader className="bg-[#fbbf24] text-black p-4 border-b-4 border-[#fbbf24] h-16 z-10 relative">
             <CardTitle className="text-xl font-black tracking-widest uppercase [font-family:var(--font-press-start)]">
-              CHAT
+              AGENT
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0 flex flex-col flex-grow min-h-0">
-            {/* CHAT INTERFACE - Top section */}
+            {/* AGENT INTERFACE - Top section */}
             <div className="flex-1 min-h-0 border-b border-white/10">
               <ChatInterface />
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { toast } from "@/components/ui/sonner";
 
 interface ChatMessage {
   id: number;
@@ -44,6 +45,7 @@ export function ChatInterface() {
           timestamp: new Date(),
         },
       ]);
+      toast.info("Agent online", { description: "Connected to relay-bot-aewo" });
     };
     initMessages();
   }, []);

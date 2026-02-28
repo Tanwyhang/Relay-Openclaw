@@ -7,6 +7,7 @@ import { CATEGORY_COLORS, type Knowledge } from "@/data/knowledge";
 import { Lock, Unlock, Loader2, FlaskConical, Terminal, ArrowUp, ArrowDown, X } from "lucide-react";
 import { KNOWLEDGE_DATA } from "@/data/knowledge";
 import { X402PaymentModal, type X402PaymentDetails } from "./X402PaymentModal";
+import { toast } from "@/components/ui/sonner";
 
 interface KnowledgeModalProps {
   knowledge: Knowledge | null;
@@ -60,6 +61,7 @@ export function KnowledgeModal({ knowledge, onClose }: KnowledgeModalProps) {
       setUserVote(type);
       if (type === "up") k.upvotes++;
       else k.downvotes++;
+      toast("Vote recorded", { description: `You voted ${type === "up" ? "up" : "down"} on this knowledge` });
     }
     
     setVotes({ up: k.upvotes, down: k.downvotes });
@@ -97,10 +99,12 @@ export function KnowledgeModal({ knowledge, onClose }: KnowledgeModalProps) {
         return next;
       });
       setPaymentStatus("success");
+      toast.success("Solution unlocked", { description: "You can now view the full solution" });
     } else if (paymentDetails?.actionType === 'simulate') {
       setHasNewSimulation(true);
       setSimulationStatus("success");
-      setActiveTab("simulation"); // Auto switch to simulation tab
+      setActiveTab("simulation");
+      toast.success("Simulation complete", { description: "Results are ready to view" });
     }
     setPaymentDetails(null);
   };
@@ -288,7 +292,7 @@ export function KnowledgeModal({ knowledge, onClose }: KnowledgeModalProps) {
               <button 
                 className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm px-6 py-3 rounded-lg transition-colors mt-auto shadow-lg shadow-blue-500/20"
                 onClick={() => {
-                  alert("Adopted & Indexed via local agent.");
+                  toast.success("Adopted to your agent", { description: "Knowledge index added to local agent" });
                   onClose();
                 }}
               >

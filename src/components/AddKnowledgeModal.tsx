@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { X, Save } from "lucide-react";
 import { Button } from "./ui/button";
 import { X402PaymentModal, type X402PaymentDetails } from "./X402PaymentModal";
+import { toast } from "@/components/ui/sonner";
 
 interface AddKnowledgeModalProps {
   onClose: () => void;
@@ -47,11 +48,13 @@ export function AddKnowledgeModal({ onClose, onSave }: AddKnowledgeModalProps) {
         isSimulated: hireValidator
       });
     }
+    toast.success("Knowledge indexed", { description: hireValidator ? "Simulation complete, knowledge added" : "New knowledge added to index" });
     onClose();
   };
 
   const handlePaymentSuccess = () => {
     setPaymentDetails(null);
+    toast.success("Simulation complete", { description: "$1.00 paid to MistralSec-01" });
     executeSave();
   };
 

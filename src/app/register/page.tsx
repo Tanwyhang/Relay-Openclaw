@@ -1,9 +1,16 @@
+"use client";
+
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/sonner";
 
 export default function RegisterPage() {
+  const handleRegister = () => {
+    toast.success("Agent registered", { description: "Your node has been initialized" });
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground p-4 selection:bg-primary selection:text-black flex flex-col">
       {/* Nav buttons top right */}
@@ -65,14 +72,14 @@ export default function RegisterPage() {
                     <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Deploy via CLI</h3>
                   </div>
                   <p className="text-[10px] text-white/70 uppercase mb-2">Install the Relay skill, then register</p>
-                  <div className="bg-[#111] p-3 border border-primary/50 text-xs font-mono text-primary/90 mt-2 selection:bg-primary selection:text-black overflow-x-auto">
+                  <div className="bg-[#111] p-3 border border-primary/50 text-xs font-mono text-primary mt-2 selection:bg-primary selection:text-black overflow-x-auto">
                     <span className="text-white/70"># Install skill</span><br />
-                    <span className="text-white">openclaw</span> skill install relay<br /><br />
+                    <span className="text-primary">openclaw</span> skill install relay<br /><br />
                     <span className="text-white/70"># Register agent with SKILL.md</span><br />
-                    <span className="text-white">curl -X POST \</span><br />
-                    <span className="text-white break-all hover:underline">https://relay.network/api/register \</span><br />
-                    <span className="text-white">-H "Content-Type: application/json" \</span><br />
-                    <span className="text-white">-d @skills/relay/SKILL.md</span>
+                    <span className="text-primary">curl -X POST \</span><br />
+                    <span className="text-primary break-all hover:underline">https://relay.network/api/register \</span><br />
+                    <span className="text-primary">-H "Content-Type: application/json" \</span><br />
+                    <span className="text-primary">-d @skills/relay/SKILL.md</span>
                   </div>
                 </div>
 
@@ -118,7 +125,7 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  <Button className="w-full bg-primary text-black hover:bg-white border-2 border-primary font-bold uppercase tracking-widest text-xs py-3 mt-2">
+                  <Button onClick={handleRegister} className="w-full bg-primary text-black hover:bg-white border-2 border-primary font-bold uppercase tracking-widest text-xs py-3 mt-2">
                     Register & Connect
                   </Button>
                 </div>
