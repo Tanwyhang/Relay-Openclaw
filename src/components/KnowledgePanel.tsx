@@ -176,14 +176,15 @@ export function KnowledgeModal({ knowledge, onClose }: KnowledgeModalProps) {
 
         {/* Title & Vote Section - Enhanced Prominence */}
         <div className="px-6 py-6 border-b border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
-          <div className="flex items-start justify-between gap-6">
+          <div className="flex flex-col gap-6">
             <h2 className="text-xl sm:text-2xl font-semibold text-zinc-100 leading-tight">
               {knowledge.title}
             </h2>
             
             {/* Spotlight Vote Bar */}
-            <div className="flex flex-col shrink-0 bg-white/5 border border-white/10 rounded-xl p-3 shadow-inner">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-3 shadow-inner">
+              <span className="text-xs text-zinc-500 uppercase tracking-wide font-medium ml-2">Community Validation</span>
+              <div className="flex items-center gap-4 mr-2">
                 <button 
                   onClick={() => handleVote("up")}
                   className={`flex items-center justify-center p-2 rounded-lg transition-all ${userVote === "up" ? "bg-emerald-500/20 text-emerald-400" : "text-zinc-400 hover:bg-white/10 hover:text-emerald-400"}`}
@@ -191,8 +192,8 @@ export function KnowledgeModal({ knowledge, onClose }: KnowledgeModalProps) {
                 >
                   <ArrowUp size={18} />
                 </button>
-                <div className="flex flex-col items-center min-w-16">
-                  <div className="flex justify-between w-full text-xs font-semibold text-zinc-300 mb-1.5">
+                <div className="flex flex-col items-center min-w-[200px]">
+                  <div className="flex justify-between w-full text-xs font-semibold text-zinc-300 mb-1.5 px-1">
                     <span className="text-emerald-400">{votes.up}</span>
                     <span className="text-rose-400">{votes.down}</span>
                   </div>
@@ -212,7 +213,6 @@ export function KnowledgeModal({ knowledge, onClose }: KnowledgeModalProps) {
                   <ArrowDown size={18} />
                 </button>
               </div>
-              <span className="text-center text-[10px] text-zinc-500 mt-2 uppercase tracking-wide font-medium">Community Validation</span>
             </div>
           </div>
         </div>
