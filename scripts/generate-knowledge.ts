@@ -1,6 +1,7 @@
 import { writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { generateEmbeddingsAndPositions } from './compute-embeddings.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -18,6 +19,7 @@ interface KnowledgeEntry {
   isSimulated: boolean;
   upvotes: number;
   downvotes: number;
+  position?: { x: number; y: number; z: number };
 }
 
 const CATEGORIES: KnowledgeCategory[] = ['Security', 'Performance', 'Architecture', 'Data', 'DevOps', 'API'];
@@ -205,9 +207,19 @@ function generateAllEntries(count: number): KnowledgeEntry[] {
   return entries.sort(() => Math.random() - 0.5);
 }
 
-function main() {
+async function main() {
   const count = 1000;
   const entries = generateAllEntries(count);
+  
+  // Generate embeddings and compute 3D positions based on semantic similarity
+  console.log('Computing embeddings for semantic clustering...');
+  const texts = entries.map(e => `${e.title}. ${e.problem.split('\n')[0]}`);
+  const embeddingResults = await generateEmbeddingsAndPositions(texts);
+  
+  // Assign computed positions to entries
+  entries.forEach((entry, i) => {
+    entry.position = embeddingResults[i].position3D;
+  });
   
   const output = `// Auto-generated knowledge data - ${new Date().toISOString()}
 // Run: npx ts-node scripts/generate-knowledge.ts to regenerate
@@ -231,6 +243,7 @@ export interface Knowledge {
   isSimulated: boolean;
   upvotes: number;
   downvotes: number;
+  position?: { x: number; y: number; z: number };
 }
 
 export const CATEGORY_COLORS: Record<KnowledgeCategory, number[]> = {
