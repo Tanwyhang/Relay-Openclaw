@@ -538,16 +538,36 @@ export default function PixelSphere({
 
       // ── Tooltip ──────────────────────────────────────
       if (tooltipRef.current) {
-        if (hoveredPoint && !s.focusedKnowledgeId) {
-          tooltipRef.current.style.opacity = '1';
-          tooltipRef.current.style.transform = `translate(${hoveredPoint.x + 15}px, ${hoveredPoint.y + 15}px)`;
+        let tooltipKnowledge: typeof KNOWLEDGE_DATA[0] | undefined;
+        let tooltipX = 0;
+        let tooltipY = 0;
+        let tooltipCategory = '';
+        let showTooltip = false;
 
-          const knowledge = KNOWLEDGE_DATA.find((k) => k.id === hoveredPoint.knowledgeId);
+        if (s.focusedKnowledgeId && s.selectedVisible) {
+          // Show tooltip for selected knowledge
+          tooltipKnowledge = KNOWLEDGE_DATA.find((k) => k.id === s.focusedKnowledgeId);
+          tooltipX = s.selectedScreenX;
+          tooltipY = s.selectedScreenY;
+          tooltipCategory = s.focusedCategory || '';
+          showTooltip = true;
+        } else if (hoveredPoint && !s.focusedKnowledgeId) {
+          // Show tooltip for hovered knowledge
+          tooltipKnowledge = KNOWLEDGE_DATA.find((k) => k.id === hoveredPoint.knowledgeId);
+          tooltipX = hoveredPoint.x;
+          tooltipY = hoveredPoint.y;
+          tooltipCategory = hoveredPoint.category;
+          showTooltip = true;
+        }
+
+        if (showTooltip && tooltipKnowledge) {
+          tooltipRef.current.style.opacity = '1';
+          tooltipRef.current.style.transform = `translate(${tooltipX + 15}px, ${tooltipY + 15}px)`;
 
           let extraBadges = '';
           let bigLock = '';
-          if (knowledge?.isGated) {
-            extraBadges += `<div class="text-[9px] font-mono text-emerald-400 font-bold mt-1 bg-emerald-400/10 px-1 py-0.5 rounded w-fit flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> $${knowledge.price?.toFixed(2)} USD (x402)</div>`;
+          if (tooltipKnowledge.isGated) {
+            extraBadges += `<div class="text-[9px] font-mono text-emerald-400 font-bold mt-1 bg-emerald-400/10 px-1 py-0.5 rounded w-fit flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> $${tooltipKnowledge.price?.toFixed(2)} USD (x402)</div>`;
             tooltipRef.current.style.boxShadow = '0 0 15px rgba(52, 211, 153, 0.4)';
             tooltipRef.current.style.borderColor = 'rgba(52, 211, 153, 0.4)';
             bigLock = `<div class="absolute top-2 right-2 text-white/20"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>`;
@@ -557,26 +577,25 @@ export default function PixelSphere({
           }
           
           // Vote ratio bar
-          if (knowledge) {
-            const total = knowledge.upvotes + knowledge.downvotes;
-            const upPercent = total > 0 ? Math.round((knowledge.upvotes / total) * 100) : 50;
-            extraBadges += `<div class="mt-2 w-full">
-              <div class="flex justify-between text-[8px] font-mono text-white/50 mb-0.5">
-                <span>▲${knowledge.upvotes}</span>
-                <span>${knowledge.downvotes}▼</span>
-              </div>
-              <div class="h-1.5 w-full bg-red-500/30 rounded-full overflow-hidden flex">
-                <div class="bg-green-400 h-full" style="width:${upPercent}%"></div>
-              </div>
-            </div>`;
-          }
+          const total = tooltipKnowledge.upvotes + tooltipKnowledge.downvotes;
+          const upPercent = total > 0 ? Math.round((tooltipKnowledge.upvotes / total) * 100) : 50;
+          extraBadges += `<div class="mt-2 w-full">
+            <div class="flex justify-between text-[8px] font-mono text-white/50 mb-0.5">
+              <span>▲${tooltipKnowledge.upvotes}</span>
+              <span>${tooltipKnowledge.downvotes}▼</span>
+            </div>
+            <div class="h-1.5 w-full bg-red-500/30 rounded-full overflow-hidden flex">
+              <div class="bg-green-400 h-full" style="width:${upPercent}%"></div>
+            </div>
+          </div>`;
 
+          const actionText = s.focusedKnowledgeId ? 'Click Inspect button below' : 'Click to inspect';
           tooltipRef.current.innerHTML = `
             ${bigLock}
-            <div class="font-bold text-white" style="font-size:11px">${hoveredPoint.category}</div>
-            <div class="text-xs text-white/90 mt-1" style="max-width:180px;font-size:10px">${knowledge?.title ?? 'Unknown'}</div>
+            <div class="font-bold text-white" style="font-size:11px">${tooltipCategory}</div>
+            <div class="text-xs text-white/90 mt-1" style="max-width:180px;font-size:10px">${tooltipKnowledge.title}</div>
             ${extraBadges}
-            <div class="text-xs mt-1" style="color:rgba(255,255,255,0.5);font-size:9px">Click to inspect</div>
+            <div class="text-xs mt-1" style="color:rgba(255,255,255,0.5);font-size:9px">${actionText}</div>
           `;
         } else {
           tooltipRef.current.style.opacity = '0';
