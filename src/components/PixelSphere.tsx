@@ -544,15 +544,8 @@ export default function PixelSphere({
         let tooltipCategory = '';
         let showTooltip = false;
 
-        if (s.focusedKnowledgeId && s.selectedVisible) {
-          // Show tooltip for selected knowledge
-          tooltipKnowledge = KNOWLEDGE_DATA.find((k) => k.id === s.focusedKnowledgeId);
-          tooltipX = s.selectedScreenX;
-          tooltipY = s.selectedScreenY;
-          tooltipCategory = s.focusedCategory || '';
-          showTooltip = true;
-        } else if (hoveredPoint && !s.focusedKnowledgeId) {
-          // Show tooltip for hovered knowledge
+        if (hoveredPoint && hoveredPoint.knowledgeId !== s.focusedKnowledgeId) {
+          // Show tooltip for hovered knowledge (but not for the selected one)
           tooltipKnowledge = KNOWLEDGE_DATA.find((k) => k.id === hoveredPoint.knowledgeId);
           tooltipX = hoveredPoint.x;
           tooltipY = hoveredPoint.y;
@@ -589,7 +582,7 @@ export default function PixelSphere({
             </div>
           </div>`;
 
-          const actionText = s.focusedKnowledgeId ? 'Click Inspect button below' : 'Click to inspect';
+          const actionText = 'Click to inspect';
           tooltipRef.current.innerHTML = `
             ${bigLock}
             <div class="font-bold text-white" style="font-size:11px">${tooltipCategory}</div>

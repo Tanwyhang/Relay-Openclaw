@@ -27,12 +27,7 @@ export default function RegisterPage() {
               RELAY
             </h1>
           </Link>
-          <div className="flex gap-4 mt-2 font-bold text-sm tracking-widest">
-            <Link href="/dashboard" className="text-white/70 hover:text-primary transition-colors cursor-pointer">
-              Dashboard
-            </Link>
-            <span className="text-primary border-b-2 border-primary border-solid">Register</span>
-          </div>
+
         </div>
       </header>
 
