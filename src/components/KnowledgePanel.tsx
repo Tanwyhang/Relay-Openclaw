@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from 'react-markdown';
 import { Badge } from "@/components/ui/badge";
 import { CATEGORY_COLORS, type Knowledge } from "@/data/knowledge";
-import { Lock, Unlock, Loader2, FlaskConical, Terminal, ArrowUp, ArrowDown } from "lucide-react";
+import { Lock, Unlock, Loader2, FlaskConical, Terminal, ArrowUp, ArrowDown, X } from "lucide-react";
 import { KNOWLEDGE_DATA } from "@/data/knowledge";
 import { X402PaymentModal, type X402PaymentDetails } from "./X402PaymentModal";
 
@@ -131,157 +131,162 @@ export function KnowledgeModal({ knowledge, onClose }: KnowledgeModalProps) {
 
       {/* Modal */}
       <div
-        className={`relative w-full max-w-lg mx-4 border-2 border-white/20 bg-[#0a0a0a] rounded-md shadow-[0_0_60px_rgba(255,59,0,0.15)] overflow-hidden transition-all duration-300 ${
-          visible ? "scale-100 translate-y-0" : "scale-95 translate-y-4"
+        className={`relative w-full max-w-2xl mx-4 bg-zinc-950/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/80 border border-white/10 overflow-hidden transition-all duration-300 ${
+          visible ? "scale-100 translate-y-0 opacity-100" : "scale-95 translate-y-8 opacity-0"
         }`}
       >
         {/* Header bar */}
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-black/60">
+        <div className="flex items-center gap-3 px-6 py-4 border-b border-white/5 bg-white/[0.02]">
           <Badge
             variant="outline"
-            className="text-[9px] px-2 py-0.5 uppercase tracking-wider font-bold"
-            style={{ borderColor: categoryColor, color: categoryColor }}
+            className="text-xs px-2.5 py-1 uppercase font-semibold border-white/20 bg-white/5 text-zinc-300"
+            style={{ color: categoryColor }}
           >
             {knowledge.category}
           </Badge>
-          <span className="text-white/40 text-[10px] font-mono">{knowledge.id}</span>
-          
-          <div className="flex items-center gap-1 ml-1">
+          <span className="text-zinc-500 text-xs font-medium">ID: {knowledge.id}</span>
+          <div className="flex items-center gap-2 ml-2">
             {simulationStatus === "idle" && (
               <button
                 onClick={handleSimulate}
-                className="bg-primary/20 text-primary hover:bg-primary hover:text-black border border-primary/30 transition-colors text-[9px] uppercase tracking-wider font-bold flex items-center gap-1 py-0.5 px-2 rounded-full cursor-pointer"
+                className="bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white border border-blue-500/20 transition-all duration-200 text-xs font-medium flex items-center gap-1.5 py-1.5 px-3 rounded-md cursor-pointer"
                 title="Run Mistral Sandbox Simulation"
               >
-                <FlaskConical size={10} />
+                <FlaskConical size={14} />
                 Simulate ($1.00)
               </button>
             )}
             {simulationStatus === "processing" && (
-              <Badge className="bg-primary/10 text-primary/70 hover:bg-primary/10 border border-primary/20 text-[9px] uppercase tracking-wider flex items-center gap-1 py-0 px-1.5 cursor-wait">
-                <Loader2 size={10} className="animate-spin" />
+              <Badge className="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-medium flex items-center gap-1.5 py-1 px-2.5 cursor-wait">
+                <Loader2 size={14} className="animate-spin" />
                 Simulating...
               </Badge>
             )}
           </div>
 
           <div className="flex-1" />
-          {/* Vote Ratio Bar */}
-          <div className="flex items-center gap-2 ml-auto mr-4">
-            <button 
-              onClick={() => handleVote("up")}
-              className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono transition-colors ${userVote === "up" ? "text-green-400" : "text-white/40 hover:text-green-400"}`}
-            >
-              <ArrowUp size={10} />
-            </button>
-            <div className="w-20">
-              <div className="flex justify-between text-[8px] font-mono text-white/50 mb-0.5">
-                <span>{votes.up}</span>
-                <span>{votes.down}</span>
-              </div>
-              <div className="h-1.5 w-full bg-red-500/30 rounded-full overflow-hidden flex cursor-pointer">
-                <div 
-                  className="bg-green-400 h-full transition-all duration-300 hover:bg-green-300"
-                  style={{ width: `${votes.up + votes.down > 0 ? (votes.up / (votes.up + votes.down)) * 100 : 50}%` }}
-                  onClick={() => handleVote("up")}
-                />
-                <div 
-                  className="flex-1 h-full hover:bg-red-300 transition-colors cursor-pointer"
-                  onClick={() => handleVote("down")}
-                />
-              </div>
-            </div>
-            <button 
-              onClick={() => handleVote("down")}
-              className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono transition-colors ${userVote === "down" ? "text-red-400" : "text-white/40 hover:text-red-400"}`}
-            >
-              <ArrowDown size={10} />
-            </button>
-          </div>
-
           <button
             onClick={onClose}
-            className="text-white/50 hover:text-white text-xs font-mono px-2 py-1 border border-white/20 hover:border-white/50 transition-colors rounded"
+            className="text-zinc-500 hover:text-zinc-300 hover:bg-white/10 p-1.5 rounded-full transition-colors"
+            aria-label="Close modal"
           >
-            [x]
+            <X size={18} />
           </button>
         </div>
 
-        {/* Title */}
-        <div className="px-4 py-3 border-b border-white/5">
-          <h3 className="text-sm font-bold text-white leading-snug">
-            {knowledge.title}
-          </h3>
+        {/* Title & Vote Section - Enhanced Prominence */}
+        <div className="px-6 py-6 border-b border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
+          <div className="flex items-start justify-between gap-6">
+            <h2 className="text-xl sm:text-2xl font-semibold text-zinc-100 leading-tight">
+              {knowledge.title}
+            </h2>
+            
+            {/* Spotlight Vote Bar */}
+            <div className="flex flex-col shrink-0 bg-white/5 border border-white/10 rounded-xl p-3 shadow-inner">
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => handleVote("up")}
+                  className={`flex items-center justify-center p-2 rounded-lg transition-all ${userVote === "up" ? "bg-emerald-500/20 text-emerald-400" : "text-zinc-400 hover:bg-white/10 hover:text-emerald-400"}`}
+                  aria-label="Upvote"
+                >
+                  <ArrowUp size={18} />
+                </button>
+                <div className="flex flex-col items-center min-w-16">
+                  <div className="flex justify-between w-full text-xs font-semibold text-zinc-300 mb-1.5">
+                    <span className="text-emerald-400">{votes.up}</span>
+                    <span className="text-rose-400">{votes.down}</span>
+                  </div>
+                  <div className="h-2.5 w-full bg-zinc-800 rounded-full overflow-hidden flex shadow-inner">
+                    <div 
+                      className="bg-emerald-500 h-full transition-all duration-500 ease-out"
+                      style={{ width: `${votes.up + votes.down > 0 ? (votes.up / (votes.up + votes.down)) * 100 : 50}%` }}
+                    />
+                    <div className="bg-rose-500 h-full flex-1 transition-all duration-500 ease-out" />
+                  </div>
+                </div>
+                <button 
+                  onClick={() => handleVote("down")}
+                  className={`flex items-center justify-center p-2 rounded-lg transition-all ${userVote === "down" ? "bg-rose-500/20 text-rose-400" : "text-zinc-400 hover:bg-white/10 hover:text-rose-400"}`}
+                  aria-label="Downvote"
+                >
+                  <ArrowDown size={18} />
+                </button>
+              </div>
+              <span className="text-center text-[10px] text-zinc-500 mt-2 uppercase tracking-wide font-medium">Community Validation</span>
+            </div>
+          </div>
         </div>
 
         {/* Tab switcher */}
-        <div className="flex border-b border-white/10">
+        <div className="flex px-6 pt-4 gap-4 border-b border-white/5">
           <button
             onClick={() => setActiveTab("problem")}
-            className={`flex-1 py-2 flex items-center justify-center gap-2 text-[10px] uppercase tracking-widest font-bold transition-colors border-b-2 ${
+            className={`pb-3 px-1 text-sm font-semibold transition-all border-b-2 ${
               activeTab === "problem"
-                ? "text-red-400 border-red-400 bg-red-400/5"
-                : "text-white/40 border-transparent hover:text-white/60"
+                ? "text-zinc-100 border-zinc-100"
+                : "text-zinc-500 border-transparent hover:text-zinc-300 hover:border-zinc-700"
             }`}
           >
             Problem
           </button>
           <button
             onClick={() => setActiveTab("solution")}
-            className={`flex-1 py-2 flex items-center justify-center gap-2 text-[10px] uppercase tracking-widest font-bold transition-colors border-b-2 ${
+            className={`pb-3 px-1 flex items-center gap-2 text-sm font-semibold transition-all border-b-2 ${
               activeTab === "solution"
-                ? "text-emerald-400 border-emerald-400 bg-emerald-400/5"
-                : "text-white/40 border-transparent hover:text-white/60"
+                ? "text-zinc-100 border-zinc-100"
+                : "text-zinc-500 border-transparent hover:text-zinc-300 hover:border-zinc-700"
             }`}
           >
             Solution
             {knowledge.isGated && !unlockedIds.has(knowledge.id) && (
-              <Lock size={12} className={activeTab === "solution" ? "text-emerald-400" : "text-white/40"} />
+              <Lock size={14} className={activeTab === "solution" ? "text-zinc-100" : "text-zinc-500"} />
             )}
             {knowledge.isGated && unlockedIds.has(knowledge.id) && (
-              <Unlock size={12} className={activeTab === "solution" ? "text-emerald-400" : "text-white/40"} />
+              <Unlock size={14} className={activeTab === "solution" ? "text-zinc-100" : "text-zinc-500"} />
             )}
           </button>
           
           {hasNewSimulation && (
             <button
               onClick={() => setActiveTab("simulation")}
-              className={`flex-1 py-2 flex items-center justify-center gap-2 text-[10px] uppercase tracking-widest font-bold transition-colors border-b-2 ${
+              className={`pb-3 px-1 text-sm font-semibold transition-all border-b-2 ${
                 activeTab === "simulation"
-                  ? "text-blue-400 border-blue-400 bg-blue-400/5"
-                  : "text-white/40 border-transparent hover:text-white/60"
+                  ? "text-blue-400 border-blue-400"
+                  : "text-zinc-500 border-transparent hover:text-zinc-300 hover:border-zinc-700"
               }`}
             >
-              Simulation
+              Simulation Results
             </button>
           )}
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto px-5 py-5 space-y-4" style={{ maxHeight: "380px", minHeight: "200px" }}>
+        <div className="overflow-y-auto px-6 py-6 min-h-[300px] max-h-[500px]">
           {activeTab === "simulation" ? (
-            <div className="flex flex-col h-full space-y-4">
-              <div className="bg-[#050505] border border-white/10 rounded font-mono text-[10px] text-white/70 p-3 leading-relaxed">
-                <div className="text-blue-400 mb-2 flex items-center gap-2">
-                  <Terminal size={12} />
+            <div className="flex flex-col h-full space-y-6">
+              <div className="bg-zinc-950 border border-zinc-800 rounded-lg shadow-inner font-mono text-xs text-zinc-300 p-5 leading-relaxed">
+                <div className="text-zinc-500 mb-4 pb-2 border-b border-zinc-800 flex items-center gap-2 font-sans font-medium">
+                  <Terminal size={14} />
                   Mistral Sandbox Env (v4.1.2)
                 </div>
-                <div>{`> initializing isolated container...`}</div>
-                <div className="text-emerald-500">{`✓ container ready`}</div>
-                <div>{`> injecting knowledge index ${knowledge.id}...`}</div>
-                <div>{`> applying solution steps...`}</div>
-                <div className="text-emerald-500">{`✓ steps applied successfully`}</div>
-                <div>{`> running regression suite...`}</div>
-                <div className="text-white/40 pl-2">
-                  - tests/core/engine.spec.ts (PASS)<br/>
-                  - tests/api/routes.spec.ts (PASS)<br/>
-                  - tests/security/auth.spec.ts (PASS)
+                <div className="space-y-1.5">
+                  <div className="text-zinc-400">{`> initializing isolated container...`}</div>
+                  <div className="text-emerald-400">{`✓ container ready`}</div>
+                  <div className="text-zinc-400">{`> injecting knowledge index ${knowledge.id}...`}</div>
+                  <div className="text-zinc-400">{`> applying solution steps...`}</div>
+                  <div className="text-emerald-400">{`✓ steps applied successfully`}</div>
+                  <div className="text-zinc-400">{`> running regression suite...`}</div>
+                  <div className="text-zinc-500 pl-4 border-l-2 border-zinc-800 my-2">
+                    - tests/core/engine.spec.ts <span className="text-emerald-400/80">(PASS)</span><br/>
+                    - tests/api/routes.spec.ts <span className="text-emerald-400/80">(PASS)</span><br/>
+                    - tests/security/auth.spec.ts <span className="text-emerald-400/80">(PASS)</span>
+                  </div>
+                  <div className="text-emerald-400 font-semibold mt-4 pt-4 border-t border-zinc-800">{`>> SIMULATION OUTCOME: SUCCESS`}</div>
+                  <div className="text-zinc-400">{`>> Zero regressions detected. Safe to apply.`}</div>
                 </div>
-                <div className="text-emerald-500 font-bold mt-2">{`>> SIMULATION OUTCOME: SUCCESS`}</div>
-                <div className="text-white/50">{`>> Zero regressions detected. Safe to apply.`}</div>
               </div>
               <button 
-                className="w-full bg-blue-500 hover:bg-blue-400 text-black font-bold uppercase tracking-widest text-xs px-6 py-3 rounded-sm transition-colors mt-auto"
+                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm px-6 py-3 rounded-lg transition-colors mt-auto shadow-lg shadow-blue-500/20"
                 onClick={() => {
                   alert("Adopted & Indexed via local agent.");
                   onClose();
@@ -291,75 +296,77 @@ export function KnowledgeModal({ knowledge, onClose }: KnowledgeModalProps) {
               </button>
             </div>
           ) : isLocked ? (
-            <div className="flex flex-col items-center justify-center text-center space-y-4 py-8 h-full">
-              <div className="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-2">
-                <Lock size={24} />
+            <div className="flex flex-col items-center justify-center text-center py-12 px-6 h-full bg-white/[0.02] rounded-xl border border-white/5">
+              <div className="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 mb-4 shadow-inner">
+                <Lock size={28} />
               </div>
-              <div>
-                <h4 className="text-white font-bold text-lg mb-1">Gated Solution</h4>
-                <p className="text-white/60 text-xs max-w-xs mx-auto mb-4 leading-relaxed">
-                  This solution requires an x402 micropayment to unlock. Your agent will handle the on-chain settlement via Coinbase facilitator.
+              <div className="mb-8">
+                <h4 className="text-zinc-100 font-semibold text-lg mb-2">Premium Solution</h4>
+                <p className="text-zinc-400 text-sm max-w-sm mx-auto leading-relaxed">
+                  This solution requires a micropayment to unlock. Your agent will securely handle the on-chain settlement.
                 </p>
               </div>
 
-              <div className="bg-black/50 border border-white/10 rounded p-3 text-left w-full max-w-[280px] mb-4 text-xs font-mono space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-white/40">Amount:</span>
-                  <span className="text-emerald-400 font-bold">${knowledge.price?.toFixed(2) || "0.50"} USD</span>
+              <div className="bg-zinc-950/50 border border-zinc-800 rounded-xl p-5 text-left w-full max-w-sm mb-6 shadow-inner space-y-3">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-zinc-500 font-medium">Amount:</span>
+                  <span className="text-zinc-100 font-semibold text-base">${knowledge.price?.toFixed(2) || "0.50"} USD</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-white/40">Recipient:</span>
-                  <span className="text-white/80">Agent-{knowledge.id.split('-')[1] || "A4X"}</span>
+                <div className="h-px bg-zinc-800 w-full" />
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-zinc-500 font-medium">Recipient:</span>
+                  <span className="text-zinc-300 font-mono text-xs">Agent-{knowledge.id.split('-')[1] || "A4X"}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-white/40">Network:</span>
-                  <span className="text-white/80">Base (Coinbase)</span>
+                <div className="h-px bg-zinc-800 w-full" />
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-zinc-500 font-medium">Network:</span>
+                  <span className="text-zinc-300">Base (Coinbase)</span>
                 </div>
               </div>
 
               {paymentStatus === "idle" && (
                 <button
                   onClick={handleUnlock}
-                  className="bg-emerald-500 hover:bg-emerald-400 text-black font-bold uppercase tracking-widest text-xs px-6 py-2.5 rounded-sm transition-colors w-full max-w-[280px]"
+                  className="bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm px-8 py-3 rounded-lg transition-all shadow-lg shadow-blue-600/20 active:scale-[0.98] w-full max-w-sm flex items-center justify-center gap-2"
                 >
-                  Pay & Unlock
+                  <Unlock size={16} /> Pay & Unlock Solution
                 </button>
               )}
 
               {paymentStatus === "processing" && (
                 <button
                   disabled
-                  className="bg-emerald-500/50 text-black font-bold uppercase tracking-widest text-xs px-6 py-2.5 rounded-sm flex items-center justify-center gap-2 w-full max-w-[280px]"
+                  className="bg-zinc-800 text-zinc-400 font-medium text-sm px-8 py-3 rounded-lg flex items-center justify-center gap-2 w-full max-w-sm cursor-wait"
                 >
-                  <Loader2 size={14} className="animate-spin" />
-                  Processing...
+                  <Loader2 size={16} className="animate-spin" />
+                  Processing Payment...
                 </button>
               )}
 
               {paymentStatus === "failed" && (
-                <div className="w-full max-w-[280px] space-y-2">
-                  <p className="text-red-400 text-xs font-bold bg-red-400/10 border border-red-400/20 p-2 rounded">
-                    Payment failed. Retrying required.
+                <div className="w-full max-w-sm space-y-3">
+                  <p className="text-rose-400 text-sm font-medium bg-rose-500/10 border border-rose-500/20 p-3 rounded-lg">
+                    Payment failed. Please retry.
                   </p>
                   <button
                     onClick={handleUnlock}
-                    className="bg-emerald-500 hover:bg-emerald-400 text-black font-bold uppercase tracking-widest text-xs px-6 py-2.5 rounded-sm transition-colors w-full"
+                    className="bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm px-8 py-3 rounded-lg transition-all w-full flex items-center justify-center gap-2"
                   >
-                    Retry Payment
+                    <Unlock size={16} /> Retry Payment
                   </button>
                 </div>
               )}
             </div>
           ) : (
-            <div className="prose prose-invert prose-sm max-w-none text-xs text-white/80 leading-relaxed prose-p:my-2 prose-ul:my-2 prose-li:my-1 prose-headings:text-white/90">
+            <div className="prose prose-invert prose-zinc max-w-none text-sm text-zinc-300 leading-relaxed prose-p:my-3 prose-ul:my-3 prose-li:my-1 prose-headings:text-zinc-100 prose-headings:font-semibold prose-strong:text-zinc-200">
               <ReactMarkdown>{section}</ReactMarkdown>
             </div>
           )}
         </div>
 
-        {/* Category color accent line */}
+        {/* Category color accent line (Subtle glow instead of hard line) */}
         <div
-          className="h-1"
+          className="h-1.5 opacity-50 blur-[2px]"
           style={{ background: `linear-gradient(90deg, ${categoryColor}, transparent)` }}
         />
       </div>
