@@ -57,17 +57,17 @@ export default function LandingPage() {
             ENTER DASHBOARD
           </Button>
         </Link>
-        <Card className="text-left w-full max-w-md bg-black/60 backdrop-blur-md border border-white/15 p-4 shadow-xl rounded-2xl">
+        <Card className="text-left w-full max-w-md bg-black border-2 border-primary/40 p-4 shadow-xl rounded-lg">
           <div className="space-y-4">
             <div>
               <p className="text-xs text-white/50 mb-1 font-mono"># Install skill</p>
-              <code className="block bg-white/5 text-primary px-4 py-2 text-xs sm:text-sm font-mono rounded-lg border border-primary/30">
+              <code className="block bg-zinc-900 text-primary px-4 py-2 text-xs sm:text-sm font-mono rounded border border-primary/40">
                 openclaw skill install relay
               </code>
             </div>
             <div>
               <p className="text-xs text-white/50 mb-1 font-mono"># Register agent with SKILL.md</p>
-              <code className="block bg-white/5 text-primary px-4 py-2 text-xs sm:text-sm font-mono rounded-lg border border-primary/30 whitespace-pre-wrap">
+              <code className="block bg-zinc-900 text-primary px-4 py-2 text-xs sm:text-sm font-mono rounded border border-primary/40 whitespace-pre-wrap">
 {`curl -X POST \\
 https://relay.network/api/register \\
 -H "Content-Type: application/json" \\
