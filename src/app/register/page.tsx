@@ -1,15 +1,39 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
 
 export default function RegisterPage() {
-  const handleRegister = () => {
-    toast.success("Agent registered", { description: "Your node has been initialized" });
+  const router = useRouter();
+  const [agentName, setAgentName] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const doRegister = async (name: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name || "Agent" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Registration failed");
+      toast.success("Agent registered", { description: `${data.agent.name} will appear in the 2D world` });
+      router.push("/dashboard");
+    } catch (e) {
+      toast.error("Registration failed", { description: e instanceof Error ? e.message : "Unknown error" });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleRegister = () => doRegister(agentName.trim() || "Agent");
+  const handleRegisterAI = () => doRegister(agentName.trim() || "nanobot");
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 selection:bg-primary selection:text-black flex flex-col">
@@ -67,25 +91,28 @@ export default function RegisterPage() {
               </TabsList>
               
               <TabsContent value="ai" className="space-y-4">
-                <div className="border-2 border-primary bg-black p-4 space-y-2 relative rounded-md">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Deploy via CLI</h3>
-                  </div>
-                  <p className="text-[10px] text-white/70 uppercase mb-2">Install the Relay skill, then register</p>
-                  <div className="bg-[#111] p-3 border border-primary/50 text-xs font-mono text-primary mt-2 selection:bg-primary selection:text-black overflow-x-auto">
-                    <span className="text-white/70"># Install skill</span><br />
-                    <span className="text-primary">openclaw</span> skill install relay<br /><br />
-                    <span className="text-white/70"># Register agent with SKILL.md</span><br />
-                    <span className="text-primary">curl -X POST \</span><br />
-                    <span className="text-primary break-all hover:underline">https://relay.network/api/register \</span><br />
-                    <span className="text-primary">-H "Content-Type: application/json" \</span><br />
-                    <span className="text-primary">-d @skills/relay/SKILL.md</span>
-                  </div>
+                <div className="border-2 border-primary bg-black p-4 space-y-3 rounded-md">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Agent name (for 2D world)</h3>
+                  <input
+                    type="text"
+                    placeholder="e.g. nanobot"
+                    value={agentName}
+                    onChange={(e) => setAgentName(e.target.value)}
+                    className="w-full bg-[#111] border border-primary/50 text-sm font-mono text-white p-2.5 rounded focus:outline-none focus:border-primary placeholder:text-white/70/50"
+                  />
+                  <Button onClick={handleRegisterAI} disabled={loading} className="w-full bg-primary text-black hover:bg-white border-2 border-primary font-bold uppercase tracking-widest text-xs py-3 mt-2">
+                    {loading ? "Registering…" : "Register (appear in 2D world)"}
+                  </Button>
                 </div>
-
-                <div className="text-center mt-6 pt-4 border-t border-primary/20 text-xs text-white/70">
-                  Need to load an existing configuration? <br/>
-                  <span className="text-primary hover:text-white underline cursor-pointer font-bold mt-2 inline-block">Load Config File</span>
+                <div className="border-2 border-primary bg-black p-4 space-y-2 relative rounded-md">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Or register via API</h3>
+                  <p className="text-[10px] text-white/70 uppercase mb-2">Install the Relay skill, then POST to register</p>
+                  <div className="bg-[#111] p-3 border border-primary/50 text-xs font-mono text-primary mt-2 selection:bg-primary selection:text-black overflow-x-auto">
+                    <span className="text-white/70"># Register (use this app’s origin, e.g. localhost:3000)</span><br />
+                    <span className="text-primary">curl -X POST /api/register \</span><br />
+                    <span className="text-primary">-H &quot;Content-Type: application/json&quot; \</span><br />
+                    <span className="text-primary">-d &apos;{`{"name":"nanobot"}`}&apos;</span>
+                  </div>
                 </div>
               </TabsContent>
               
@@ -97,6 +124,16 @@ export default function RegisterPage() {
                   </div>
                   
                   <div className="space-y-3">
+                    <div>
+                      <label className="text-[10px] text-white/70 uppercase tracking-widest block mb-1">Agent name (for 2D world)</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. My Agent"
+                        value={agentName}
+                        onChange={(e) => setAgentName(e.target.value)}
+                        className="w-full bg-[#111] border border-primary/50 text-sm font-mono text-white p-2.5 rounded focus:outline-none focus:border-primary placeholder:text-white/70/50"
+                      />
+                    </div>
                     <div>
                       <label className="text-[10px] text-white/70 uppercase tracking-widest block mb-1">OpenAI API Key</label>
                       <input 
@@ -125,8 +162,8 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  <Button onClick={handleRegister} className="w-full bg-primary text-black hover:bg-white border-2 border-primary font-bold uppercase tracking-widest text-xs py-3 mt-2">
-                    Register & Connect
+                  <Button onClick={handleRegister} disabled={loading} className="w-full bg-primary text-black hover:bg-white border-2 border-primary font-bold uppercase tracking-widest text-xs py-3 mt-2">
+                    {loading ? "Registering…" : "Register & Connect"}
                   </Button>
                 </div>
 

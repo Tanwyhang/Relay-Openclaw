@@ -1,24 +1,128 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import PixelSphere from "@/components/PixelSphere";
-import { ChatInterface } from "@/components/ChatInterface";
+import AgentWorld2D, { DEFAULT_ITEM_POSITIONS } from "@/components/AgentWorld2D";
+import type { WorldItemPositions, TriggerAgentPhase, TestPhaseType } from "@/types/world";
 import { AgentActivity } from "@/components/AgentActivity";
 import { PlatformActivity } from "@/components/PlatformActivity";
 import { KnowledgeModal } from "@/components/KnowledgePanel";
 import { AddKnowledgeModal } from "@/components/AddKnowledgeModal";
 import { getKnowledgeById } from "@/data/knowledge";
+import { toast } from "sonner";
 
+import type { RegisteredAgent } from "@/types/agents";
 export default function Dashboard() {
-  // Step 1: which dot is focused on the sphere (rotate + zoom + dim)
   const [selectedKnowledgeId, setSelectedKnowledgeId] = useState<string | null>(null);
-  // Step 2: which knowledge is open in the modal (triggered by inspect button)
   const [modalKnowledgeId, setModalKnowledgeId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [registeredAgents, setRegisteredAgents] = useState<RegisteredAgent[]>([]);
+  const [itemPositions] = useState<WorldItemPositions>(DEFAULT_ITEM_POSITIONS);
+  /** Set when an agent performs an action (from shared memory or API) to run the corresponding phase animation. */
+  const [triggerAgentPhase, setTriggerAgentPhase] = useState<TriggerAgentPhase | null>(null);
+  /** After a phase completes, run this next phase for the same agent (e.g. reading → finding → publishing). */
+  const phaseChainRef = useRef<{ agentId: string; phases: TestPhaseType[] } | null>(null);
+  // Poll registered agents only to start/update — never clear on backend failure so the flow keeps running.
+  useEffect(() => {
+    const poll = () => {
+      fetch("/api/agents")
+        .then((res) => res.ok ? res.json() : Promise.reject(new Error("not ok")))
+        .then((data) => setRegisteredAgents(data.agents ?? []))
+        .catch(() => {});
+    };
+    poll();
+    const interval = setInterval(poll, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Poll shared memory only to START a flow (new problem/solution). Backend is not used to stop — flow runs to completion locally.
+  const lastMemoryRef = useRef<{ problemIds: string[]; solutionIds: string[] }>({ problemIds: [], solutionIds: [] });
+  const initialLoadDoneRef = useRef(false);
+  useEffect(() => {
+    const poll = async () => {
+      try {
+        const res = await fetch("/api/memory/index");
+        if (!res.ok) return;
+        const data = await res.json();
+        const problems = data.problems ?? [];
+        const solutions = data.solutions ?? [];
+        const flowTrigger = data.flowTrigger as { agent: string } | undefined;
+        const prev = lastMemoryRef.current;
+        const newProblemIds = problems.filter((p: { id: string }) => !prev.problemIds.includes(p.id)).map((p: { id: string }) => p.id);
+        const newSolutionIds = solutions.filter((s: { id: string }) => !prev.solutionIds.includes(s.id)).map((s: { id: string }) => s.id);
+        lastMemoryRef.current = { problemIds: problems.map((p: { id: string }) => p.id), solutionIds: solutions.map((s: { id: string }) => s.id) };
+
+        if (!initialLoadDoneRef.current) {
+          initialLoadDoneRef.current = true;
+          return;
+        }
+
+        // Don't start a new flow while one is in progress — backend only starts, never stops.
+        if (phaseChainRef.current !== null) return;
+
+        const resolveAgentId = (createdBy: string): string | null => {
+          if (!createdBy) return registeredAgents[0]?.id ?? null;
+          const by = createdBy.toLowerCase();
+          if (by === "nanobot" || by === "agent") return registeredAgents[0]?.id ?? null;
+          const match = registeredAgents.find(
+            (a) => a.id === createdBy || a.name === createdBy || a.id.toLowerCase() === by || a.name.toLowerCase().includes(by) || by.includes(a.id.toLowerCase()) || by.includes(a.name.toLowerCase())
+          );
+          return match?.id ?? registeredAgents[0]?.id ?? null;
+        };
+
+        // Flow trigger from run-nanobot.sh: start lobster or crab flow even when nanobot doesn't publish (e.g. reuses existing solution)
+        if (flowTrigger?.agent && (flowTrigger.agent === "alpha" || flowTrigger.agent === "beta")) {
+          const isCrab = flowTrigger.agent === "beta";
+          const agent = registeredAgents.find((a) => (/beta/i.test(a.name + a.id)) === isCrab);
+          const agentId = agent?.id ?? (isCrab ? registeredAgents[1]?.id : registeredAgents[0]?.id);
+          if (agentId) {
+            phaseChainRef.current = {
+              agentId,
+              phases: isCrab ? ["encounter", "reading"] : ["encounter", "reading", "finding", "publishing"],
+            };
+            setTriggerAgentPhase({ agentId, phase: "encounter" });
+            fetch("/api/flow/trigger/clear", { method: "POST" }).catch(() => {});
+            return;
+          }
+        }
+
+        // Prefer full problem flow (encounter → reading → finding → publishing) when both problem and solution appear (e.g. problem_and_solution publish).
+        if (newProblemIds.length > 0) {
+          const latest = problems.find((p: { id: string }) => p.id === newProblemIds[newProblemIds.length - 1]);
+          const agentId = resolveAgentId(latest?.created_by);
+          if (agentId) {
+            const isCrab = registeredAgents.some((a) => a.id === agentId && /beta/i.test(a.name + a.id));
+            phaseChainRef.current = {
+              agentId,
+              phases: isCrab ? ["encounter", "reading"] : ["encounter", "reading", "finding", "publishing"],
+            };
+            setTriggerAgentPhase({ agentId, phase: "encounter" });
+            return;
+          }
+        }
+        if (newSolutionIds.length > 0) {
+          const latest = solutions.find((s: { id: string }) => s.id === newSolutionIds[newSolutionIds.length - 1]);
+          const agentId = resolveAgentId(latest?.created_by);
+          if (agentId) {
+            const isCrab = registeredAgents.some((a) => a.id === agentId && /beta/i.test(a.name + a.id));
+            if (isCrab) {
+              phaseChainRef.current = { agentId, phases: ["reading"] };
+            } else {
+              phaseChainRef.current = { agentId, phases: ["reading", "finding", "publishing"] };
+            }
+            setTriggerAgentPhase({ agentId, phase: "reading" });
+          }
+        }
+      } catch (_) {}
+    };
+    const interval = setInterval(poll, 1000);
+    poll();
+    return () => clearInterval(interval);
+  }, [registeredAgents]);
 
   const modalKnowledge = modalKnowledgeId
     ? getKnowledgeById(modalKnowledgeId) ?? null
@@ -143,23 +247,36 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* RIGHT: AGENT CARD */}
+        {/* RIGHT: AGENT WORLD CARD */}
         <Card className="bg-card border-4 border-[#fbbf24] shimmer-border shimmer-border-gold flex flex-col overflow-hidden">
           <CardHeader className="bg-[#fbbf24] text-black p-4 border-b-4 border-[#fbbf24] h-16 z-10 relative">
             <CardTitle className="text-xl font-black tracking-widest uppercase [font-family:var(--font-press-start)]">
-              AGENT
+              AGENT WORLD
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0 flex flex-col flex-grow min-h-0">
-            {/* AGENT INTERFACE - Top section */}
-            <div className="flex-1 min-h-0 border-b border-white/10">
-              <ChatInterface />
-            </div>
-
-            {/* LOGS - Bottom section, 2 columns */}
-            <div className="h-[200px] grid grid-cols-2 gap-3 p-3 bg-black/40">
-              <AgentActivity />
-              <PlatformActivity onLogClick={handleSelect} />
+            {/* AGENT WORLD - animations linked to real agent actions (problem → encounter; solution → reading → finding → publishing) */}
+            <div className="flex-1 min-h-0 overflow-auto">
+              <AgentWorld2D
+                registeredAgents={registeredAgents}
+                itemPositions={itemPositions}
+                triggerAgentPhase={triggerAgentPhase}
+                onPhaseComplete={(agentId, completedPhase) => {
+                  const chain = phaseChainRef.current;
+                  if (chain && chain.agentId === agentId && chain.phases[0] === completedPhase && chain.phases.length > 1) {
+                    const [, ...next] = chain.phases;
+                    phaseChainRef.current = { agentId, phases: next };
+                    setTriggerAgentPhase({ agentId, phase: next[0] });
+                  } else {
+                    // Clear trigger phase only when chain is complete
+                    setTriggerAgentPhase(null);
+                    if (chain && chain.agentId === agentId && chain.phases[0] === completedPhase) {
+                      phaseChainRef.current = null;
+                      toast.success("Flow completed successfully!");
+                    }
+                  }
+                }}
+              />
             </div>
           </CardContent>
         </Card>

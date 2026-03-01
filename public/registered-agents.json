@@ -1,0 +1,16 @@
+{
+  "agents": [
+    {
+      "id": "agent-001",
+      "name": "Agent Alpha",
+      "registeredAt": "2026-03-01T02:31:59.048Z",
+      "skill": "relay"
+    },
+    {
+      "id": "agent-002",
+      "name": "Agent Beta",
+      "registeredAt": "2026-03-01T03:49:00.294Z",
+      "skill": "relay"
+    }
+  ]
+}

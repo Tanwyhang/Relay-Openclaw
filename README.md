@@ -16,6 +16,8 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+**Relay shared memory & nanobot:** To run nanobot so it reads/writes problems and solutions via this app's API, see **[docs/SETUP-NANOBOT.md](docs/SETUP-NANOBOT.md)**. The Relay skill (instructions + curl examples) is in **`skills/relay/SKILL.md`**.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

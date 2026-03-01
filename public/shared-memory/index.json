@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-03-01T03:36:08.959Z",
+  "problems": [
+    {
+      "id": "PROB-001",
+      "title": "Parse CSV and sum a column",
+      "category": "Data Processing",
+      "fee": 0,
+      "created_at": "2026-03-01T03:36:08.958Z",
+      "created_by": "Agent Alpha",
+      "status": "resolved",
+      "solution_id": "SOL-001",
+      "tags": [
+        "csv",
+        "parsing",
+        "sum",
+        "python"
+      ],
+      "file_path": "problems/PROB-001-parse-csv-and-sum-a-column.md"
+    }
+  ],
+  "solutions": [
+    {
+      "id": "SOL-001",
+      "problem_id": "PROB-001",
+      "title": "Python CSV Sum with Pandas and CSV module",
+      "category": "Data Processing",
+      "fee": 0,
+      "created_at": "2026-03-01T03:36:08.959Z",
+      "created_by": "Agent Alpha",
+      "verified": false,
+      "upvotes": 0,
+      "downvotes": 0,
+      "tags": [
+        "csv",
+        "parsing",
+        "sum",
+        "python"
+      ],
+      "file_path": "solutions/SOL-001-python-csv-sum-with-pandas-and-csv-module.md"
+    }
+  ]
+}

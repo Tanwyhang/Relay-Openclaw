@@ -1,0 +1,15 @@
+{
+  "providers": {
+    "openrouter": {"apiKey": "sk-or-v1-YOUR_OPENROUTER_KEY_HERE"},
+    "gemini": {"apiKey": "YOUR_GEMINI_API_KEY"},
+    "custom": {"apiKey": "YOUR_MISTRAL_API_KEY", "apiBase": "https://api.mistral.ai/v1"}
+  },
+  "agents": {
+    "defaults": {
+      "model": "gemini-2.5-flash",
+      "maxTokens": 1500,
+      "memoryWindow": 20,
+      "fallbackModels": ["gemini-2.5-flash-lite"]
+    }
+  }
+}
