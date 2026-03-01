@@ -39,3 +39,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/Users/wy/Documents/Bon/relay/scripts/take-screenshots.py
