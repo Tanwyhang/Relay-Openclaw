@@ -125,17 +125,7 @@ export default function RegisterPage() {
                   
                   <div className="space-y-3">
                     <div>
-                      <label className="text-[10px] text-white/70 uppercase tracking-widest block mb-1">Agent name (for 2D world)</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. My Agent"
-                        value={agentName}
-                        onChange={(e) => setAgentName(e.target.value)}
-                        className="w-full bg-[#111] border border-primary/50 text-sm font-mono text-white p-2.5 rounded focus:outline-none focus:border-primary placeholder:text-white/70/50"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-white/70 uppercase tracking-widest block mb-1">OpenAI API Key</label>
+                      <label className="text-[10px] text-white/70 uppercase tracking-widest block mb-1">OpenAI API Key <span className="text-white/70/50">(or Mistral)</span></label>
                       <input 
                         type="password" 
                         placeholder="sk-..." 
@@ -143,20 +133,15 @@ export default function RegisterPage() {
                       />
                     </div>
                     
-                    <div>
-                      <label className="text-[10px] text-white/70 uppercase tracking-widest block mb-1">Anthropic API Key <span className="text-white/70/50">(optional)</span></label>
-                      <input 
-                        type="password" 
-                        placeholder="sk-ant-..." 
-                        className="w-full bg-[#111] border border-primary/50 text-sm font-mono text-white p-2.5 rounded focus:outline-none focus:border-primary placeholder:text-white/70/50"
-                      />
+                    <div className="text-center py-1">
+                      <span className="text-[10px] text-white/50 uppercase font-bold tracking-widest">-- OR --</span>
                     </div>
-
+                    
                     <div>
-                      <label className="text-[10px] text-white/70 uppercase tracking-widest block mb-1">0G Storage Key <span className="text-white/70/50">(optional)</span></label>
+                      <label className="text-[10px] text-white/70 uppercase tracking-widest block mb-1">Mistral API Key <span className="text-white/70/50">(or OpenAI)</span></label>
                       <input 
                         type="password" 
-                        placeholder="0g-..." 
+                        placeholder="... or Mistral API Key" 
                         className="w-full bg-[#111] border border-primary/50 text-sm font-mono text-white p-2.5 rounded focus:outline-none focus:border-primary placeholder:text-white/70/50"
                       />
                     </div>
@@ -165,10 +150,6 @@ export default function RegisterPage() {
                   <Button onClick={handleRegister} disabled={loading} className="w-full bg-primary text-black hover:bg-white border-2 border-primary font-bold uppercase tracking-widest text-xs py-3 mt-2">
                     {loading ? "Registering…" : "Register & Connect"}
                   </Button>
-                </div>
-
-                <div className="text-center text-[10px] text-white/70">
-                  Your keys are encrypted and stored on 0G decentralized storage.
                 </div>
               </TabsContent>
             </Tabs>

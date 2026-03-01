@@ -19,11 +19,11 @@ const platformLogs: LogEntry[] = [
   {
     id: "#12",
     type: "tx",
-    title: "0G Storage Commit",
+    title: "Network Snapshot",
     time: "2m",
     knowledgeId: "K-004",
     details: { 
-      source: "0G Chain", 
+      source: "Base L2", 
       entries: 1402, 
       status: "confirmed",
       description: "Knowledge base snapshot committed to decentralized storage"

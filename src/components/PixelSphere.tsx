@@ -44,62 +44,45 @@ interface ProjectedPoint {
   origZ: number;
 }
 
-// Deterministic seeded random for stable point generation
-function seededRandom(seed: number) {
-  let s = seed;
-  return () => {
-    s = (s * 16807 + 0) % 2147483647;
-    return (s - 1) / 2147483646;
-  };
-}
-
+/**
+ * Generate sphere points using semantic clustering based on text embeddings
+ * 
+ * Position Algorithm:
+ * 1. Generate text embeddings using Xenova/all-MiniLM-L6-v2 model
+ * 2. Compute cosine similarity between all knowledge entries
+ * 3. Apply PCA dimensionality reduction from 384D → 3D
+ * 4. Normalize to unit sphere surface
+ * 
+ * Result: Knowledge entries with similar content cluster together in 3D space,
+ * independent of their category labels. This creates organic semantic neighborhoods.
+ */
 function generatePoints(): SpherePoint[] {
-  const rng = seededRandom(42);
   const pts: SpherePoint[] = [];
 
-  // Build cluster centers — one per category
-  const centers = CATEGORY_LIST.map((cat) => {
-    const u = rng();
-    const v = rng();
-    const theta = u * 2.0 * Math.PI;
-    const phi = Math.acos(2.0 * v - 1.0);
-    const r = Math.sin(phi);
-    return {
-      x: r * Math.cos(theta),
-      y: Math.cos(phi),
-      z: r * Math.sin(theta),
-      category: cat,
-    };
-  });
-
-  const spread = 0.6;
-
-  // Group knowledge entries by category
-  const knowledgeByCategory: Record<string, typeof KNOWLEDGE_DATA> = {};
-  for (const k of KNOWLEDGE_DATA) {
-    if (!knowledgeByCategory[k.category]) knowledgeByCategory[k.category] = [];
-    knowledgeByCategory[k.category].push(k);
-  }
-
-  // Generate exactly 1 dot per knowledge entry, clustered by category
-  for (const center of centers) {
-    const categoryKnowledge = knowledgeByCategory[center.category] || [];
-    const color = CATEGORY_COLORS[center.category];
-
-    for (let i = 0; i < categoryKnowledge.length; i++) {
-      const nx = center.x + (rng() - 0.5) * spread;
-      const ny = center.y + (rng() - 0.5) * spread;
-      const nz = center.z + (rng() - 0.5) * spread;
-
-      const len = Math.sqrt(nx * nx + ny * ny + nz * nz);
-
+  // Use precomputed positions from embeddings (computed at build time)
+  for (const knowledge of KNOWLEDGE_DATA) {
+    const color = CATEGORY_COLORS[knowledge.category];
+    
+    if (knowledge.position) {
+      // Position determined by semantic similarity (cosine distance in embedding space)
       pts.push({
-        x: nx / len,
-        y: ny / len,
-        z: nz / len,
+        x: knowledge.position.x,
+        y: knowledge.position.y,
+        z: knowledge.position.z,
         color,
-        category: center.category,
-        knowledgeId: categoryKnowledge[i].id,
+        category: knowledge.category,
+        knowledgeId: knowledge.id,
+      });
+    } else {
+      // Fallback: should never happen in production (positions are precomputed)
+      console.warn(`Missing position for knowledge ${knowledge.id}, using fallback`);
+      pts.push({
+        x: 0,
+        y: 1,
+        z: 0,
+        color,
+        category: knowledge.category,
+        knowledgeId: knowledge.id,
       });
     }
   }
