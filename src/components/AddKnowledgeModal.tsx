@@ -22,15 +22,43 @@ export function AddKnowledgeModal({ onClose, onSave }: AddKnowledgeModalProps) {
   // x402 Payment state
   const [paymentDetails, setPaymentDetails] = useState<X402PaymentDetails | null>(null);
 
-  const handleSaveInit = () => {
+  const handleSaveInit = async () => {
     if (hireValidator) {
-      setPaymentDetails({
-        amount: 1.00,
-        recipient: "MistralSec-01",
-        network: "Base (Coinbase)",
-        description: "Run Mistral AI Sandbox Simulation for new knowledge index",
-        actionType: 'simulate'
-      });
+      // Call the simulate API first to get a 402 with payment requirements
+      try {
+        const response = await fetch("/api/simulate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            knowledgeId: "new",
+            title,
+            problem: problemDescription,
+            solution: solutionDescription,
+            category,
+          }),
+        });
+
+        if (response.status === 402) {
+          const paymentRequiredHeader = response.headers.get("payment-required");
+          if (!paymentRequiredHeader) {
+            toast.error("Payment required but no payment details received");
+            return;
+          }
+          setPaymentDetails({
+            amount: 0.001,
+            recipient: "0x643C...1598",
+            network: "Base Sepolia",
+            description: "Simulation for new knowledge index",
+            actionType: 'simulate',
+            paymentRequiredHeader,
+          });
+        } else {
+          // Not gated or already paid
+          executeSave();
+        }
+      } catch (error) {
+        toast.error("Failed to initiate simulation");
+      }
     } else {
       executeSave();
     }
@@ -52,9 +80,9 @@ export function AddKnowledgeModal({ onClose, onSave }: AddKnowledgeModalProps) {
     onClose();
   };
 
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = (_paymentHeaders: Record<string, string>) => {
     setPaymentDetails(null);
-    toast.success("Simulation complete", { description: "$1.00 paid to MistralSec-01" });
+    toast.success("Simulation complete", { description: "$0.001 paid via x402" });
     executeSave();
   };
 
@@ -168,7 +196,7 @@ export function AddKnowledgeModal({ onClose, onSave }: AddKnowledgeModalProps) {
                 {hireValidator && (
                   <div className="ml-7 mt-2 text-xs font-mono text-white/70 bg-blue-500/10 border border-blue-500/20 p-2 rounded">
                     <div>Env: Mistral Sandbox</div>
-                    <div>Cost: <span className="text-blue-400 font-bold">$1.00 USD</span> (x402)</div>
+                    <div>Cost: <span className="text-blue-400 font-bold">$0.001 USDC</span> (x402)</div>
                   </div>
                 )}
               </div>
@@ -210,7 +238,7 @@ export function AddKnowledgeModal({ onClose, onSave }: AddKnowledgeModalProps) {
         <div className="sticky bottom-0 z-10 flex items-center justify-between p-4 bg-gray-900 border-t-2 border-white/10">
           <div className="text-xs font-mono font-bold text-white/70 flex items-center gap-4">
             {hireValidator && (
-              <span className="bg-black/50 p-2 rounded">ESTIMATED PAYMENT: <span className="text-blue-400">$1.00 USD</span></span>
+              <span className="bg-black/50 p-2 rounded">ESTIMATED PAYMENT: <span className="text-blue-400">$0.001 USDC</span></span>
             )}
           </div>
           <Button 
@@ -218,7 +246,7 @@ export function AddKnowledgeModal({ onClose, onSave }: AddKnowledgeModalProps) {
             className="flex items-center gap-2 px-6 py-2 text-black transition-all bg-primary hover:bg-white border-2 border-primary font-bold uppercase tracking-wider"
           >
             <Save size={16} />
-            {hireValidator ? "Pay $1.00 & Simulate" : "Index Knowledge"}
+            {hireValidator ? "Pay $0.001 & Simulate" : "Index Knowledge"}
           </Button>
         </div>
       </div>
